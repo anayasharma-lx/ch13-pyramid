@@ -1,634 +1,500 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>Number Pyramid Builder</title>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Number Pyramids — Ch. 13</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=DM+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=DM+Mono:wght@400;500;600&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
-  --bg:#f5f4f0; --surface:#fff; --surface2:#f0ede8; --border:#d8d4cc;
-  --text:#1a1814; --text2:#5a5650; --text3:#9a958e;
-  --blue:#2c5f9e; --red:#c0392b; --green:#1a7a4a; --orange:#e08020;
-  --purple:#7a5cb0; --pink:#b04878;
-  --font:'DM Sans',-apple-system,BlinkMacSystemFont,sans-serif;
-  --mono:'DM Mono',ui-monospace,monospace;
+  --bg:#0f0d0b;--surface:#181512;--surface2:#201d18;
+  --chalk:#f0ece3;--chalk2:#b8b2a7;--chalk3:#716b62;--rule:#2a2520;
+  --blue:#6ba3d6;--green:#5dbf8a;--amber:#e8a840;--orange:#e0943a;--red:#e07070;
+  --display:'Playfair Display',Georgia,serif;
+  --mono:'DM Mono',monospace;--body:'DM Sans',sans-serif;
 }
-html{scroll-behavior:smooth}
-body{font-family:var(--font);background:var(--bg);color:var(--text);
-  min-height:100vh;-webkit-font-smoothing:antialiased;line-height:1.5;padding:24px 16px}
-.app{max-width:920px;margin:0 auto}
+html,body{background:var(--bg);color:var(--chalk)}
+body{font-family:var(--body);min-height:100vh;-webkit-font-smoothing:antialiased;padding:0}
 
-.head{display:flex;align-items:center;gap:14px;margin-bottom:24px}
-.head-ic{width:42px;height:42px;border-radius:10px;background:var(--surface2);
-  border:1.5px solid var(--border);display:flex;align-items:center;justify-content:center;
-  font-family:var(--mono);font-weight:600;color:var(--text2);font-size:18px;flex-shrink:0}
-.lbl{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.8px;color:var(--text3);margin-bottom:3px}
-.title{font-size:22px;font-weight:700;color:var(--text);line-height:1.2}
-.subtitle{font-size:14px;color:var(--text2);margin-top:2px}
+/* HEADER */
+.header{padding:20px 24px 16px;border-bottom:1px solid var(--rule)}
+.chap-tag{font-family:var(--mono);font-size:10px;font-weight:600;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--chalk3);margin-bottom:7px}
+.main-title{font-family:var(--display);font-size:clamp(26px,6.5vw,54px);font-weight:900;
+  line-height:.95;color:var(--chalk)}
+.main-title em{font-style:italic;color:var(--amber)}
+.subtitle{font-family:var(--mono);font-size:12px;color:var(--chalk3);margin-top:8px;
+  max-width:540px;line-height:1.65}
 
-.tabs{display:flex;gap:4px;background:var(--surface2);border:1.5px solid var(--border);
-  border-radius:10px;padding:4px;margin-bottom:20px}
-.tab{flex:1;padding:9px 12px;border:none;background:transparent;border-radius:7px;
-  font-family:var(--font);font-size:13px;font-weight:600;color:var(--text2);cursor:pointer;
-  transition:all .15s}
-.tab.active{background:var(--surface);color:var(--text);border:1.5px solid var(--border);
-  box-shadow:0 1px 2px rgba(0,0,0,.04)}
-.tab:hover:not(.active){color:var(--text)}
+/* TABS */
+.tab-bar{display:flex;overflow-x:auto;-webkit-overflow-scrolling:touch;
+  border-bottom:1px solid var(--rule);scrollbar-width:none;background:var(--surface)}
+.tab-bar::-webkit-scrollbar{display:none}
+.tab-btn{padding:12px 20px;border:none;border-bottom:2px solid transparent;
+  background:transparent;font-family:var(--display);font-size:16px;letter-spacing:.04em;
+  color:var(--chalk);opacity:.35;cursor:pointer;white-space:nowrap;flex-shrink:0;
+  margin-bottom:-1px;transition:all .15s;-webkit-tap-highlight-color:transparent}
+.tab-btn.active{opacity:1;border-bottom-color:var(--amber)}
 
-.view{display:none}
-.view.active{display:block}
-
-.card{background:var(--surface);border:1.5px solid var(--border);border-radius:12px;padding:22px;margin-bottom:16px}
-.card-lbl{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.8px;color:var(--text3);margin-bottom:14px}
-
-.controls{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:20px}
-.controls-label{font-size:13px;font-weight:600;color:var(--text2)}
-.size-btn{width:40px;height:40px;border-radius:8px;border:1.5px solid var(--border);
-  background:var(--surface);color:var(--text2);font-family:var(--mono);font-size:15px;
-  font-weight:600;cursor:pointer;transition:all .12s}
-.size-btn:hover{border-color:var(--text3);color:var(--text)}
-.size-btn.active{background:var(--text);color:var(--surface);border-color:var(--text)}
-
-.btn{padding:9px 16px;border-radius:8px;border:1.5px solid var(--border);
-  background:var(--surface);color:var(--text);font-family:var(--font);font-size:13px;
-  font-weight:600;cursor:pointer;transition:all .12s}
-.btn:hover{background:var(--surface2)}
-.btn-pri{background:var(--blue);border-color:var(--blue);color:#fff}
-.btn-pri:hover{background:#234d83;border-color:#234d83}
-.btn-sm{padding:7px 12px;font-size:12px}
-
-.pyramid-wrap{overflow-x:auto;background:var(--surface2);border-radius:10px;padding:18px 12px;margin-bottom:18px}
+/* SVG PYRAMID */
+.pyramid-wrap{padding:18px 24px;background:var(--bg);border-bottom:1px solid var(--rule);
+  overflow-x:auto;-webkit-overflow-scrolling:touch}
 .pyramid-wrap svg{display:block;margin:0 auto;overflow:visible}
 
-.vars-row{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-bottom:16px}
-.var-cell{display:flex;flex-direction:column;align-items:center;gap:5px}
-.var-lbl{font-size:10px;color:var(--text3);font-weight:600;text-transform:uppercase;letter-spacing:.5px}
-.var-row{display:flex;align-items:center;gap:4px}
-.step-btn{width:26px;height:26px;border-radius:6px;background:var(--surface);
-  border:1.5px solid var(--border);color:var(--text2);font-size:14px;
-  cursor:pointer;font-weight:600;line-height:1;display:flex;align-items:center;justify-content:center}
-.step-btn:hover{background:var(--surface2);color:var(--text)}
-.var-val{width:44px;height:40px;border-radius:8px;background:var(--surface);
-  border:1.5px solid var(--border);display:flex;align-items:center;justify-content:center;
-  font-size:16px;font-weight:700;color:var(--text);font-family:var(--mono)}
+/* SIZE CONTROLS */
+.size-strip{padding:10px 24px;background:var(--surface);border-bottom:1px solid var(--rule);
+  display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.size-lbl{font-family:var(--mono);font-size:10px;font-weight:600;letter-spacing:.1em;
+  text-transform:uppercase;color:var(--chalk3);flex-shrink:0}
+.size-btn{width:36px;height:36px;border:1px solid var(--rule);background:transparent;
+  font-family:var(--mono);font-size:13px;font-weight:700;color:var(--chalk3);
+  cursor:pointer;transition:all .12s;-webkit-tap-highlight-color:transparent;display:flex;
+  align-items:center;justify-content:center}
+.size-btn.active{background:var(--chalk);color:var(--bg);border-color:var(--chalk)}
+.size-btn:hover:not(.active){border-color:var(--chalk3);color:var(--chalk)}
+.rand-btn{padding:6px 14px;border:1px solid var(--rule);background:transparent;
+  font-family:var(--mono);font-size:11px;font-weight:600;color:var(--chalk3);
+  cursor:pointer;transition:all .12s;margin-left:8px}
+.rand-btn:hover{border-color:var(--chalk);color:var(--chalk)}
 
-.ic-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
-.ic-row{display:flex;justify-content:space-between;align-items:center;padding:9px 12px;
-  background:var(--surface2);border:1px solid var(--border);border-radius:8px}
-.ic-row-lbl{font-size:11px;color:var(--text2);font-weight:600;text-transform:uppercase;letter-spacing:.5px}
-.ic-row-val{font-family:var(--mono);font-size:15px;font-weight:600;color:var(--text)}
-.ic-row-val.big{font-size:18px;color:var(--blue)}
+/* VALUE STEPPER ROW */
+.vals-row{padding:12px 24px;background:var(--surface2);border-bottom:1px solid var(--rule);
+  display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+.val-step{display:flex;flex-direction:column;align-items:center;gap:5px}
+.vs-lbl{font-family:var(--mono);font-size:9px;font-weight:600;letter-spacing:.08em;
+  text-transform:uppercase;color:var(--chalk3)}
+.vs-row{display:flex;align-items:center;gap:4px}
+.step-btn{width:24px;height:24px;border:1px solid var(--rule);background:transparent;
+  font-family:var(--mono);font-size:13px;font-weight:700;color:var(--chalk3);
+  cursor:pointer;display:flex;align-items:center;justify-content:center;
+  -webkit-tap-highlight-color:transparent;transition:all .1s}
+.step-btn:hover{border-color:var(--chalk3);color:var(--chalk)}
+.vs-val{width:40px;height:36px;background:var(--surface);border:1px solid var(--rule);
+  display:flex;align-items:center;justify-content:center;
+  font-family:var(--display);font-size:18px;letter-spacing:.02em;color:var(--blue)}
 
-.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
-@media (max-width:700px){.grid-2{grid-template-columns:1fr}}
+/* STATS */
+.stats-section{display:grid;grid-template-columns:1fr 1fr;border-bottom:1px solid var(--rule)}
+@media(max-width:480px){.stats-section{grid-template-columns:1fr}}
+.sc{padding:14px 20px;border-right:1px solid var(--rule)}
+.sc:last-child{border-right:none}
+.sc-lbl{font-family:var(--mono);font-size:9px;font-weight:600;letter-spacing:.1em;
+  text-transform:uppercase;color:var(--chalk3);margin-bottom:4px}
+.sc-big{font-family:var(--display);font-size:clamp(24px,4vw,40px);line-height:1;letter-spacing:.02em}
+.sc-big.amber{color:var(--amber)}
+.sc-big.blue{color:var(--blue)}
 
-.input-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px}
-.input-cell{display:flex;flex-direction:column;gap:5px}
-.input-cell-lbl{font-size:10px;color:var(--text3);font-weight:600;text-transform:uppercase;letter-spacing:.5px}
-.input-cell input{width:100%;text-align:center;background:var(--surface);
-  border:1.5px solid var(--border);border-radius:8px;color:var(--text);
-  padding:9px 6px;font-size:17px;font-family:var(--mono);outline:none;font-weight:700;transition:all .15s}
-.input-cell input:focus{border-color:var(--blue)}
-.input-cell input.ok{border-color:var(--green);background:#f0f7f3}
-.input-cell input.wrong{border-color:var(--red);background:#fbf2f0}
-.feedback{font-size:11px;font-weight:600;margin-top:3px;text-align:center;font-family:var(--mono)}
-.feedback.ok{color:var(--green)}
-.feedback.wrong{color:var(--red)}
+/* WEIGHT REVEAL */
+.weights-reveal{padding:16px 24px;background:var(--surface);border-bottom:1px solid var(--rule)}
+.wr-head{font-family:var(--mono);font-size:10px;font-weight:600;letter-spacing:.1em;
+  text-transform:uppercase;color:var(--chalk3);margin-bottom:8px}
+.weights-row{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}
+.w-chip{padding:6px 12px;border:1px solid var(--rule);background:var(--surface2);
+  display:flex;flex-direction:column;align-items:center;gap:2px}
+.wc-v{font-family:var(--mono);font-size:9px;font-weight:600;letter-spacing:.06em;
+  text-transform:uppercase;color:var(--chalk3)}
+.wc-n{font-family:var(--display);font-size:20px;letter-spacing:.02em;color:var(--amber)}
+.weight-formula{font-family:var(--mono);font-size:12px;color:var(--chalk2);line-height:1.8}
+.wf-hl{color:var(--green);font-weight:600}
 
-.algebra-box{background:var(--surface2);border:1.5px solid var(--border);border-radius:8px;
-  padding:14px 16px;font-family:var(--mono);font-size:13px;color:var(--text);
-  line-height:1.85;white-space:pre;overflow-x:auto}
+/* SOLVE SECTION */
+.solve-layout{display:grid;grid-template-columns:1fr 1fr;border-bottom:1px solid var(--rule)}
+@media(max-width:560px){.solve-layout{grid-template-columns:1fr}}
+.solve-left,.solve-right{padding:18px 20px}
+.solve-right{border-left:1px solid var(--rule)}
+.sl-head{font-family:var(--mono);font-size:10px;font-weight:600;letter-spacing:.1em;
+  text-transform:uppercase;color:var(--chalk3);margin-bottom:10px}
+.alg-block{font-family:var(--mono);font-size:12px;color:var(--chalk2);line-height:1.85;
+  white-space:pre;overflow-x:auto;padding:12px 14px;
+  background:rgba(232,168,64,.06);border:1px solid rgba(232,168,64,.2)}
+.alg-hl{color:var(--green);font-weight:600}
+.input-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:10px}
+input.solve-inp{width:100%;text-align:center;padding:9px 4px;background:var(--surface2);
+  border:1.5px solid var(--rule);font-family:var(--display);font-size:18px;color:var(--chalk);
+  outline:none;-moz-appearance:textfield;transition:border .12s}
+input.solve-inp::-webkit-inner-spin-button{-webkit-appearance:none}
+input.solve-inp:focus{border-color:var(--amber)}
+input.solve-inp.ok{border-color:var(--green);background:rgba(93,191,138,.08);color:var(--green)}
+input.solve-inp.wrong{border-color:var(--red);background:rgba(224,112,112,.08);color:var(--red)}
+.inp-lbl{font-family:var(--mono);font-size:9px;font-weight:600;letter-spacing:.08em;
+  text-transform:uppercase;color:var(--chalk3);text-align:center;margin-top:3px}
+.check-btn{padding:9px 16px;background:var(--amber);border:none;
+  font-family:var(--display);font-size:16px;letter-spacing:.04em;color:var(--bg);
+  cursor:pointer;width:100%;transition:opacity .12s}
+.check-btn:hover{opacity:.85}
+.result-box{padding:10px 14px;text-align:center;font-family:var(--mono);font-size:13px;
+  font-weight:700;margin-top:8px}
+.result-box.ok{background:rgba(93,191,138,.1);border:1px solid rgba(93,191,138,.3);color:var(--green)}
+.result-box.partial{background:rgba(224,112,112,.1);border:1px solid rgba(224,112,112,.3);color:var(--red)}
 
-.insight{background:#fff8f0;border:1px solid #f0d8c0;border-left:3px solid var(--orange);
-  border-radius:0 8px 8px 0;padding:11px 14px;font-size:13px;color:#6b4400;
-  line-height:1.65;margin-top:14px}
-.insight strong{color:#4a2e00;font-weight:700}
+/* PASCAL (Pattern tab) */
+.pascal-section{padding:16px 24px;border-bottom:1px solid var(--rule);overflow-x:auto}
+.pascal-svg{display:block;margin:0 auto}
+.pascal-legend{font-family:var(--mono);font-size:11px;color:var(--chalk3);
+  text-align:center;margin-top:8px}
 
-.result-box{padding:11px 14px;border-radius:8px;text-align:center;margin-top:4px;font-size:13px;font-weight:600}
-.result-box.success{background:#f0f7f3;border:1.5px solid var(--green);color:var(--green)}
-.result-box.partial{background:#fbf2f0;border:1.5px solid #e6c5bf;color:var(--red)}
-
-.fib-row{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:10px}
-.fib-cell{width:34px;height:34px;border-radius:7px;background:var(--surface2);
-  border:1.5px solid var(--border);display:flex;align-items:center;justify-content:center;
-  font-size:13px;font-weight:700;color:var(--text);font-family:var(--mono)}
-.fib-result{display:flex;align-items:center;gap:12px;padding:10px 0}
-.fib-num{font-size:28px;font-weight:800;font-family:var(--mono);color:var(--text)}
-.fib-num.fib{color:var(--green)}
-.fib-tag{font-size:12px;font-weight:600;color:var(--green);font-family:var(--mono)}
-
-.weights-line{display:flex;gap:8px;flex-wrap:wrap;align-items:center;font-family:var(--mono);font-size:14px;line-height:2.1;margin-bottom:10px}
-.w-coef{font-weight:700;color:var(--text);font-size:15px}
-.w-var{color:var(--text2)}
-.w-plus{color:var(--text3)}
-
-.kbd{font-family:var(--mono);font-size:11px;padding:1px 6px;background:var(--surface2);
-  border:1px solid var(--border);border-radius:4px}
-
-.pyr-svg-cell{transition:fill .15s, stroke .15s}
-.legend{font-size:12px;color:var(--text2);text-align:center;margin-top:8px}
-.legend strong{color:var(--text)}
-
-.section-intro{font-size:13px;color:var(--text2);line-height:1.6;margin-bottom:12px}
+/* INSIGHT */
+.insight-row{padding:16px 24px;display:grid;grid-template-columns:3px 1fr;gap:14px;
+  border-top:1px solid var(--rule)}
+.ins-bar{background:var(--amber)}
+.ins-text{font-size:13px;line-height:1.75;color:var(--chalk2)}
+.ins-text strong{color:var(--chalk)}
 </style>
 </head>
 <body>
-<div class="app">
-  <div class="head">
-    <div class="head-ic">△</div>
-    <div>
-      <div class="lbl">6.3 · Number Pyramids</div>
-      <div class="title">Number Pyramid Builder</div>
+
+<div class="header">
+  <div class="chap-tag">Ch. 13 · Number Patterns &amp; Tricks</div>
+  <div class="main-title">Number <em>Pyramids</em></div>
+  <div class="subtitle">Each cell equals the sum of the two below. Change a bottom value — watch its influence ripple upward. The weights reveal the pattern.</div>
+</div>
+
+<div class="tab-bar">
+  <button class="tab-btn active" data-t="build">Build & explore</button>
+  <button class="tab-btn" data-t="solve">Solve puzzles</button>
+  <button class="tab-btn" data-t="pattern">Pascal connection</button>
+</div>
+
+<!-- ═══ BUILD TAB ═══ -->
+<div id="view-build">
+  <div class="size-strip">
+    <span class="size-lbl">Size</span>
+    <button class="size-btn active" data-s="3">3</button>
+    <button class="size-btn" data-s="4">4</button>
+    <button class="size-btn" data-s="5">5</button>
+    <button class="size-btn" data-s="6">6</button>
+    <button class="rand-btn" id="rand-btn">Random</button>
+  </div>
+  <div class="pyramid-wrap" id="pyr-wrap"></div>
+  <div class="vals-row" id="vals-row"></div>
+  <div class="stats-section">
+    <div class="sc"><div class="sc-lbl">Bottom row sum</div><div class="sc-big blue" id="b-sum">—</div></div>
+    <div class="sc"><div class="sc-lbl">Top value</div><div class="sc-big amber" id="b-top">—</div></div>
+  </div>
+  <div class="weights-reveal" id="weights-reveal"></div>
+  <div class="insight-row">
+    <div class="ins-bar"></div>
+    <p class="ins-text">Each bottom value reaches the top with a <strong>fixed weight</strong> — the binomial coefficient from Pascal's triangle. The corner values have weight 1 (one path to the top). Middle values have larger weights (more paths). Changing any bottom value changes the top by exactly its weight.</p>
+  </div>
+</div>
+
+<!-- ═══ SOLVE TAB ═══ -->
+<div id="view-solve" style="display:none">
+  <div class="solve-layout">
+    <div class="solve-left">
+      <div class="sl-head">Fill in the missing cells</div>
+      <div id="solve-pyr-wrap" style="overflow-x:auto;margin-bottom:14px"></div>
+      <div style="font-size:12.5px;color:var(--chalk2);margin-bottom:10px">Your answers for the ? cells:</div>
+      <div class="input-grid" id="solve-inputs"></div>
+      <button class="check-btn" id="check-btn">Check answers</button>
+      <div id="solve-result"></div>
+    </div>
+    <div class="solve-right">
+      <div class="sl-head">How to solve it — algebra</div>
+      <div class="alg-block" id="solve-alg"></div>
+      <button class="check-btn" style="margin-top:10px;background:var(--rule)" id="new-puzzle-btn">New puzzle</button>
     </div>
   </div>
+</div>
 
-  <div class="tabs">
-    <button class="tab active" data-tab="build">Build & explore</button>
-    <button class="tab" data-tab="solve">Solve puzzles</button>
-    <button class="tab" data-tab="pattern">Pattern & Pascal</button>
+<!-- ═══ PATTERN TAB ═══ -->
+<div id="view-pattern" style="display:none">
+  <div class="pascal-section">
+    <div style="font-family:var(--mono);font-size:10px;font-weight:600;letter-spacing:.1em;
+      text-transform:uppercase;color:var(--chalk3);margin-bottom:10px">
+      Pascal's triangle — the highlighted row gives the pyramid weights
+    </div>
+    <svg id="pascal-svg" class="pascal-svg"></svg>
+    <div class="pascal-legend" id="pascal-legend"></div>
   </div>
-
-  <div id="view-build" class="view active"></div>
-  <div id="view-solve" class="view"></div>
-  <div id="view-pattern" class="view"></div>
+  <div id="pattern-info" style="padding:18px 24px;border-bottom:1px solid var(--rule)"></div>
+  <div class="insight-row">
+    <div class="ins-bar"></div>
+    <p class="ins-text">For a pyramid with n cells at the bottom, the weights are <strong>row n-1 of Pascal's triangle</strong>. The sum of weights = 2^(n-1). Put consecutive Fibonacci numbers in the base — the top is always another Fibonacci number!</p>
+  </div>
 </div>
 
 <script>
-// ============================================================
-// SHARED MATH HELPERS
-// ============================================================
+function binom(n,k){if(k<0||k>n)return 0;if(k===0||k===n)return 1;let r=1;for(let i=0;i<k;i++)r=r*(n-i)/(i+1);return Math.round(r);}
+function rand(a,b){return Math.floor(Math.random()*(b-a+1))+a;}
+
+// ═══ BUILD ═══
+let buildSize=3,buildVals=[3,1,4];
+
 function buildPyramid(base){
-  const rows = [base.slice()];
-  while(rows[rows.length-1].length > 1){
-    const r = rows[rows.length-1];
-    const next = [];
-    for(let i=0;i<r.length-1;i++) next.push(r[i]+r[i+1]);
+  const rows=[base.slice()];
+  while(rows[rows.length-1].length>1){
+    const r=rows[rows.length-1];
+    const next=[];for(let i=0;i<r.length-1;i++)next.push(r[i]+r[i+1]);
     rows.push(next);
   }
   return rows;
 }
-function binom(n,k){
-  if(k<0||k>n) return 0;
-  if(k===0||k===n) return 1;
-  let r = 1;
-  for(let i=0;i<k;i++) r = r*(n-i)/(i+1);
-  return Math.round(r);
-}
-function rand(a,b){ return Math.floor(Math.random()*(b-a+1))+a; }
-function randomRow(n){ return Array.from({length:n}, ()=>rand(1,12)); }
-
-// ============================================================
-// TAB SWITCHING
-// ============================================================
-document.querySelectorAll('.tab').forEach(t=>{
-  t.addEventListener('click', ()=>{
-    document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
-    document.querySelectorAll('.view').forEach(x=>x.classList.remove('active'));
-    t.classList.add('active');
-    document.getElementById('view-'+t.dataset.tab).classList.add('active');
-  });
-});
-
-// ============================================================
-// VIEW 1: BUILD & EXPLORE
-// ============================================================
-const buildState = { size: 4, vals: [3,1,4,1] };
 
 function renderBuild(){
-  const container = document.getElementById('view-build');
-  const rows = buildPyramid(buildState.vals);
-  const cellW = 56, cellH = 42, gapX = 10, gapY = 8;
-  const topRow = rows[rows.length-1];
-  const bottomCount = rows[0].length;
-  const svgW = Math.max(bottomCount*(cellW+gapX)+40, 280);
-  const svgH = rows.length*(cellH+gapY)+10;
+  const rows=buildPyramid(buildVals);
+  const cellW=54,cellH=40,gX=8,gY=8;
+  const n=buildVals.length;
+  const svgW=Math.max(n*(cellW+gX),280);
+  const svgH=rows.length*(cellH+gY)+8;
+  const weights=Array.from({length:n},(_,k)=>binom(n-1,k));
 
-  let svgInner = '';
-  rows.forEach((row, ri)=>{
-    const rowFromBottom = ri;
-    const isBottom = ri === 0;
-    const isTop = ri === rows.length-1;
-    const count = row.length;
-    const xStart = (svgW - count*(cellW+gapX) + gapX)/2;
-    const y = (rows.length-1-rowFromBottom)*(cellH+gapY)+5;
-
-    // connectors to row above
-    if(ri < rows.length-1){
-      const aboveCount = rows[ri+1].length;
-      const aboveXStart = (svgW - aboveCount*(cellW+gapX) + gapX)/2;
-      const aboveY = (rows.length-2-rowFromBottom)*(cellH+gapY)+5;
-      for(let i=0;i<count-1;i++){
-        const cx = xStart + i*(cellW+gapX) + cellW/2;
-        const cxRight = xStart + (i+1)*(cellW+gapX) + cellW/2;
-        const aboveX = aboveXStart + i*(cellW+gapX) + cellW/2;
-        svgInner += `<line x1="${cx}" y1="${y}" x2="${aboveX}" y2="${aboveY+cellH}" stroke="#d8d4cc" stroke-width="1.5"/>`;
-        svgInner += `<line x1="${cxRight}" y1="${y}" x2="${aboveX}" y2="${aboveY+cellH}" stroke="#d8d4cc" stroke-width="1.5"/>`;
+  let svgInner='';
+  rows.forEach((row,ri)=>{
+    const isBottom=ri===0,isTop=ri===rows.length-1;
+    const cnt=row.length;
+    const xStart=(svgW-cnt*(cellW+gX)+gX)/2;
+    const y=(rows.length-1-ri)*(cellH+gY)+4;
+    if(ri<rows.length-1){
+      const aboveCnt=rows[ri+1].length;
+      const aboveX=(svgW-aboveCnt*(cellW+gX)+gX)/2;
+      const aboveY=(rows.length-2-ri)*(cellH+gY)+4;
+      for(let i=0;i<cnt-1;i++){
+        const cx=xStart+i*(cellW+gX)+cellW/2;
+        const cx2=xStart+(i+1)*(cellW+gX)+cellW/2;
+        const ax=aboveX+i*(cellW+gX)+cellW/2;
+        svgInner+=`<line x1="${cx}" y1="${y}" x2="${ax}" y2="${aboveY+cellH}" stroke="#2a2520" stroke-width="1.5"/>`;
+        svgInner+=`<line x1="${cx2}" y1="${y}" x2="${ax}" y2="${aboveY+cellH}" stroke="#2a2520" stroke-width="1.5"/>`;
       }
     }
-
-    row.forEach((v, ci)=>{
-      const x = xStart + ci*(cellW+gapX);
-      const cx = x + cellW/2;
-      const cy = y + cellH/2;
-      let fill = '#f0ede8', stroke = '#d8d4cc', strokeW = 1.5, textCol = '#5a5650';
-      if(isBottom){ fill = '#fff'; stroke = '#2c5f9e'; strokeW = 1.5; textCol = '#2c5f9e'; }
-      if(isTop){ fill = '#f0f7f3'; stroke = '#1a7a4a'; strokeW = 1.5; textCol = '#1a7a4a'; }
-      svgInner += `<rect class="pyr-svg-cell" x="${x}" y="${y}" width="${cellW}" height="${cellH}" rx="8" fill="${fill}" stroke="${stroke}" stroke-width="${strokeW}"/>`;
-      svgInner += `<text x="${cx}" y="${cy+5}" text-anchor="middle" fill="${textCol}" font-size="14" font-family="DM Mono,monospace" font-weight="600">${v}</text>`;
+    row.forEach((v,ci)=>{
+      const x=xStart+ci*(cellW+gX);
+      let fill='#201d18',stroke='#2a2520',sw=1.5,txt='#b8b2a7';
+      if(isBottom){fill='rgba(107,163,214,.15)';stroke='#6ba3d6';txt='#6ba3d6';}
+      if(isTop){fill='rgba(232,168,64,.15)';stroke='#e8a840';txt='#e8a840';}
+      svgInner+=`<rect x="${x}" y="${y}" width="${cellW}" height="${cellH}" rx="6" fill="${fill}" stroke="${stroke}" stroke-width="${sw}"/>`;
+      svgInner+=`<text x="${x+cellW/2}" y="${y+cellH/2+5}" text-anchor="middle" fill="${txt}" font-size="14" font-family="DM Mono,monospace" font-weight="700">${v}</text>`;
+      // Show weight on bottom row cells
+      if(isBottom){
+        svgInner+=`<text x="${x+cellW/2}" y="${y+cellH+12}" text-anchor="middle" fill="rgba(232,168,64,.5)" font-size="9" font-family="DM Mono,monospace">×${weights[ci]}</text>`;
+      }
     });
   });
 
-  let varsHTML = '';
-  buildState.vals.forEach((v,i)=>{
-    varsHTML += `
-      <div class="var-cell">
-        <div class="var-lbl">v${i+1}</div>
-        <div class="var-row">
-          <button class="step-btn" data-idx="${i}" data-delta="-1">−</button>
-          <div class="var-val">${v}</div>
-          <button class="step-btn" data-idx="${i}" data-delta="1">+</button>
-        </div>
-      </div>`;
+  const wrap=document.getElementById('pyr-wrap');
+  wrap.innerHTML=`<svg viewBox="0 0 ${svgW} ${svgH+16}" width="100%" style="min-width:280px;max-width:${svgW+20}px">${svgInner}</svg>`;
+
+  // Value steppers
+  const vr=document.getElementById('vals-row');vr.innerHTML='';
+  buildVals.forEach((v,i)=>{
+    const cell=document.createElement('div');cell.className='val-step';
+    const row=document.createElement('div');row.className='vs-row';
+    const dec=document.createElement('button');dec.className='step-btn';dec.textContent='−';
+    const val=document.createElement('div');val.className='vs-val';val.textContent=v;
+    const inc=document.createElement('button');inc.className='step-btn';inc.textContent='+';
+    const lbl=document.createElement('div');lbl.className='vs-lbl';lbl.textContent='v'+(i+1);
+    dec.addEventListener('pointerdown',e=>{e.preventDefault();buildVals[i]=Math.max(0,buildVals[i]-1);renderBuild();});
+    inc.addEventListener('pointerdown',e=>{e.preventDefault();buildVals[i]=Math.min(99,buildVals[i]+1);renderBuild();});
+    row.appendChild(dec);row.appendChild(val);row.appendChild(inc);
+    cell.appendChild(lbl);cell.appendChild(row);vr.appendChild(cell);
   });
 
-  const sum = buildState.vals.reduce((a,b)=>a+b,0);
-  const top = rows[rows.length-1][0];
+  const top=rows[rows.length-1][0];
+  const bsum=buildVals.reduce((a,b)=>a+b,0);
+  document.getElementById('b-sum').textContent=bsum;
+  document.getElementById('b-top').textContent=top;
 
-  container.innerHTML = `
-    <div class="controls">
-      <span class="controls-label">Pyramid size:</span>
-      ${[3,4,5,6].map(n=>`<button class="size-btn ${buildState.size===n?'active':''}" data-size="${n}">${n}</button>`).join('')}
-      <button class="btn btn-sm" id="randomize">Random numbers</button>
-    </div>
-
-    <div class="card">
-      <div class="card-lbl">Each number = sum of the two directly below it</div>
-      <div class="pyramid-wrap">
-        <svg viewBox="0 0 ${svgW} ${svgH}" width="100%" style="min-width:280px;max-width:${svgW}px">${svgInner}</svg>
-      </div>
-      <div class="vars-row">${varsHTML}</div>
-      <div class="ic-grid">
-        <div class="ic-row"><span class="ic-row-lbl">Bottom row sum</span><span class="ic-row-val">${sum}</span></div>
-        <div class="ic-row"><span class="ic-row-lbl">Top value</span><span class="ic-row-val big">${top}</span></div>
-      </div>
-    </div>
-
-    <div class="insight">
-      Try changing one bottom cell and watch how it ripples up. Each cell at the bottom <strong>influences the top by a fixed weight</strong> — that's the secret behind the algebra in the next tab.
-    </div>
-  `;
-
-  // Wire controls
-  container.querySelectorAll('.size-btn').forEach(b=>{
-    b.addEventListener('click', ()=>{
-      buildState.size = parseInt(b.dataset.size);
-      buildState.vals = randomRow(buildState.size);
-      renderBuild();
-    });
-  });
-  container.querySelector('#randomize').addEventListener('click', ()=>{
-    buildState.vals = randomRow(buildState.size);
-    renderBuild();
-  });
-  container.querySelectorAll('.step-btn').forEach(b=>{
-    b.addEventListener('click', ()=>{
-      const i = parseInt(b.dataset.idx);
-      const d = parseInt(b.dataset.delta);
-      buildState.vals[i] = Math.max(0, Math.min(99, buildState.vals[i]+d));
-      renderBuild();
-    });
-  });
+  // Weights reveal
+  const wr=document.getElementById('weights-reveal');
+  const wsum=weights.reduce((a,b)=>a+b,0);
+  const formula=buildVals.map((v,i)=>`${weights[i]}×${v}`).join(' + ');
+  wr.innerHTML=`<div class="wr-head">How each bottom cell influences the top</div>
+    <div class="weights-row">${weights.map((w,i)=>`<div class="w-chip"><div class="wc-v">v${i+1}</div><div class="wc-n">×${w}</div></div>`).join('')}</div>
+    <div class="weight-formula">top = ${formula} = <span class="wf-hl">${top}</span>\n\nWeights come from row ${n-1} of Pascal's triangle.\nSum of weights = 2^${n-1} = ${wsum}\n\nChange v1 by 1 → top changes by ${weights[0]}.\nChange v${Math.ceil(n/2)} by 1 → top changes by ${weights[Math.floor((n-1)/2)]}.</div>`;
 }
 
-// ============================================================
-// VIEW 2: SOLVE PUZZLES
-// ============================================================
-// Each puzzle: top value + bottom-middle + bottom-right are given.
-// Find: c (bottom-left), mid-left = b+c, mid-right = c+a
-const puzzles = [
-  {top:30, bm:8,  br:4},
-  {top:40, bm:10, br:6},
-  {top:50, bm:9,  br:7},
-  {top:30, bm:8,  br:4},
-  {top:80, bm:20, br:10},
-  {top:22, bm:5,  br:3},
-  {top:36, bm:6,  br:6},
-  {top:100,bm:25, br:15},
-  {top:56, bm:16, br:8},
-  {top:44, bm:16, br:4},
-  {top:70, bm:20, br:10},
-  {top:48, bm:12, br:6}
-];
-// Compute answers
-puzzles.forEach(p=>{
-  // top = (bm+c) + (c+br)  =>  c = (top - bm - br)/2
-  p.c = (p.top - p.bm - p.br)/2;
-  p.ml = p.bm + p.c;
-  p.mr = p.c + p.br;
+document.querySelectorAll('.size-btn').forEach(b=>b.addEventListener('click',()=>{
+  buildSize=+b.dataset.s;buildVals=Array.from({length:buildSize},()=>rand(1,9));
+  document.querySelectorAll('.size-btn').forEach(x=>x.classList.remove('active'));
+  b.classList.add('active');renderBuild();
+}));
+document.getElementById('rand-btn').addEventListener('click',()=>{
+  buildVals=Array.from({length:buildSize},()=>rand(1,9));renderBuild();
 });
 
-const solveState = { idx: 0, c:'', ml:'', mr:'', checked:false };
+// ═══ SOLVE ═══
+const PUZZLES=[
+  {top:30,bm:8,br:4},{top:40,bm:10,br:6},{top:50,bm:9,br:7},
+  {top:80,bm:20,br:10},{top:22,bm:5,br:3},{top:36,bm:6,br:6},
+  {top:56,bm:16,br:8},{top:44,bm:16,br:4},{top:70,bm:20,br:10},
+];
+PUZZLES.forEach(p=>{p.c=(p.top-p.bm-p.br)/2;p.ml=p.bm+p.c;p.mr=p.c+p.br;});
+let puzzleIdx=0,solveState={c:'',ml:'',mr:'',checked:false};
 
 function renderSolve(){
-  const container = document.getElementById('view-solve');
-  const p = puzzles[solveState.idx];
-  const cOK = solveState.checked && parseInt(solveState.c) === p.c;
-  const mlOK = solveState.checked && parseInt(solveState.ml) === p.ml;
-  const mrOK = solveState.checked && parseInt(solveState.mr) === p.mr;
-  const allOK = cOK && mlOK && mrOK;
-  const correctCount = [cOK, mlOK, mrOK].filter(Boolean).length;
+  const p=PUZZLES[puzzleIdx];
+  const cOK=solveState.checked&&+solveState.c===p.c;
+  const mlOK=solveState.checked&&+solveState.ml===p.ml;
+  const mrOK=solveState.checked&&+solveState.mr===p.mr;
+  const all=cOK&&mlOK&&mrOK;
 
-  // SVG for puzzle pyramid
-  const cellW = 62, cellH = 44, gapX = 10, gapY = 12;
-  const svgW = 300, svgH = 3*(cellH+gapY)+10;
-  const cellAttrs = (status, val) => {
-    if(status === 'known') return {fill:'#f0f7f3', stroke:'#1a7a4a', txt:'#1a7a4a', sw:1.5, dash:''};
-    if(status === 'ok')    return {fill:'#f0f7f3', stroke:'#1a7a4a', txt:'#1a7a4a', sw:1.5, dash:''};
-    if(status === 'wrong') return {fill:'#fbf2f0', stroke:'#c0392b', txt:'#c0392b', sw:1.5, dash:''};
-    return {fill:'#fff', stroke:'#9a958e', txt:'#9a958e', sw:1.5, dash:'5 3'};
-  };
-
-  const layout = [
-    [{val:p.top, status:'known'}],
-    [
-      {val: solveState.checked ? (mlOK ? p.ml : (solveState.ml||'?')) : (solveState.ml||'?'),
-       status: mlOK ? 'ok' : (solveState.checked && !mlOK ? 'wrong' : 'unknown'),
-       ans: p.ml},
-      {val: solveState.checked ? (mrOK ? p.mr : (solveState.mr||'?')) : (solveState.mr||'?'),
-       status: mrOK ? 'ok' : (solveState.checked && !mrOK ? 'wrong' : 'unknown'),
-       ans: p.mr}
-    ],
-    [
-      {val: solveState.checked ? (cOK ? p.c : (solveState.c||'?')) : (solveState.c||'?'),
-       status: cOK ? 'ok' : (solveState.checked && !cOK ? 'wrong' : 'unknown'),
-       ans: p.c},
-      {val: p.bm, status:'known'},
-      {val: p.br, status:'known'}
-    ]
+  // SVG
+  const cellW=62,cellH=42,gX=10,gY=14,svgW=300;
+  const layout=[
+    [{v:p.top,s:'known'}],
+    [{v:solveState.checked?(mlOK?p.ml:(solveState.ml||'?')):(solveState.ml||'?'),s:mlOK?'ok':solveState.checked?'wrong':'unknown'},
+     {v:solveState.checked?(mrOK?p.mr:(solveState.mr||'?')):(solveState.mr||'?'),s:mrOK?'ok':solveState.checked?'wrong':'unknown'}],
+    [{v:solveState.checked?(cOK?p.c:(solveState.c||'?')):(solveState.c||'?'),s:cOK?'ok':solveState.checked?'wrong':'unknown'},
+     {v:p.bm,s:'known'},{v:p.br,s:'known'}],
   ];
-
-  let svg = '';
-  layout.forEach((row, ri)=>{
-    const count = row.length;
-    const xStart = (svgW - count*(cellW+gapX) + gapX)/2;
-    const y = ri*(cellH+gapY)+5;
-    // connectors
-    if(ri < 2){
-      const below = layout[ri+1];
-      const bCount = below.length;
-      const bxStart = (svgW - bCount*(cellW+gapX) + gapX)/2;
-      const by = (ri+1)*(cellH+gapY)+5;
-      row.forEach((_, ci)=>{
-        const cx = xStart + ci*(cellW+gapX) + cellW/2;
-        svg += `<line x1="${cx}" y1="${y+cellH}" x2="${bxStart + ci*(cellW+gapX) + cellW/2}" y2="${by}" stroke="#d8d4cc" stroke-width="1.5"/>`;
-        svg += `<line x1="${cx}" y1="${y+cellH}" x2="${bxStart + (ci+1)*(cellW+gapX) + cellW/2}" y2="${by}" stroke="#d8d4cc" stroke-width="1.5"/>`;
+  const svgH=3*(cellH+gY)+10;
+  let svg='';
+  layout.forEach((row,ri)=>{
+    const cnt=row.length;
+    const xS=(svgW-cnt*(cellW+gX)+gX)/2;
+    const y=ri*(cellH+gY)+5;
+    if(ri<2){
+      const bcnt=layout[ri+1].length;
+      const bxS=(svgW-bcnt*(cellW+gX)+gX)/2;
+      const by=(ri+1)*(cellH+gY)+5;
+      row.forEach((_,ci)=>{
+        const cx=xS+ci*(cellW+gX)+cellW/2;
+        svg+=`<line x1="${cx}" y1="${y+cellH}" x2="${bxS+ci*(cellW+gX)+cellW/2}" y2="${by}" stroke="#2a2520" stroke-width="1.5"/>`;
+        svg+=`<line x1="${cx}" y1="${y+cellH}" x2="${bxS+(ci+1)*(cellW+gX)+cellW/2}" y2="${by}" stroke="#2a2520" stroke-width="1.5"/>`;
       });
     }
-    row.forEach((cell, ci)=>{
-      const x = xStart + ci*(cellW+gapX);
-      const a = cellAttrs(cell.status, cell.val);
-      svg += `<rect x="${x}" y="${y}" width="${cellW}" height="${cellH}" rx="8" fill="${a.fill}" stroke="${a.stroke}" stroke-width="${a.sw}" stroke-dasharray="${a.dash}"/>`;
-      svg += `<text x="${x+cellW/2}" y="${y+cellH/2+5}" text-anchor="middle" fill="${a.txt}" font-size="15" font-family="DM Mono,monospace" font-weight="700">${cell.val}</text>`;
+    row.forEach((cell,ci)=>{
+      const x=xS+ci*(cellW+gX);
+      let fill='#201d18',stroke='#2a2520',txt='#b8b2a7',sw=1.5,dash='';
+      if(cell.s==='known'){fill='rgba(93,191,138,.1)';stroke='#5dbf8a';txt='#5dbf8a';}
+      else if(cell.s==='ok'){fill='rgba(93,191,138,.1)';stroke='#5dbf8a';txt='#5dbf8a';}
+      else if(cell.s==='wrong'){fill='rgba(224,112,112,.1)';stroke='#e07070';txt='#e07070';}
+      else{stroke='#716b62';txt='#716b62';dash='5,3';}
+      svg+=`<rect x="${x}" y="${y}" width="${cellW}" height="${cellH}" rx="7" fill="${fill}" stroke="${stroke}" stroke-width="${sw}" stroke-dasharray="${dash}"/>`;
+      svg+=`<text x="${x+cellW/2}" y="${y+cellH/2+5}" text-anchor="middle" fill="${txt}" font-size="15" font-family="DM Mono,monospace" font-weight="700">${cell.v}</text>`;
     });
   });
 
-  const algebraText =
+  document.getElementById('solve-pyr-wrap').innerHTML=`<svg viewBox="0 0 ${svgW} ${svgH}" width="100%" style="max-width:340px;margin:0 auto;display:block">${svg}</svg>`;
+
+  // Inputs
+  const ig=document.getElementById('solve-inputs');ig.innerHTML='';
+  [{key:'c',label:'Bottom-left'},{key:'ml',label:'Mid-left'},{key:'mr',label:'Mid-right'}].forEach(f=>{
+    const ok=f.key==='c'?cOK:f.key==='ml'?mlOK:mrOK;
+    const wrong=solveState.checked&&!ok;
+    const ans=f.key==='c'?p.c:f.key==='ml'?p.ml:p.mr;
+    const div=document.createElement('div');
+    div.innerHTML=`<input type="number" class="solve-inp${ok?' ok':wrong?' wrong':''}" data-key="${f.key}" value="${solveState[f.key]||''}">
+      <div class="inp-lbl">${f.label}${solveState.checked?`<br>${ok?'✓ '+ans:'→ '+ans}`:''}</div>`;
+    ig.appendChild(div);
+  });
+  ig.querySelectorAll('input').forEach(inp=>{
+    inp.addEventListener('input',()=>{solveState[inp.dataset.key]=inp.value;if(solveState.checked){solveState.checked=false;renderSolve();}});
+  });
+
+  const res=document.getElementById('solve-result');res.innerHTML='';
+  if(solveState.checked){
+    const n=[cOK,mlOK,mrOK].filter(Boolean).length;
+    const box=document.createElement('div');
+    box.className='result-box '+(all?'ok':'partial');
+    box.textContent=all?'All three correct — perfect!':`${n}/3 correct — see answers above`;
+    res.appendChild(box);
+  }
+
+  document.getElementById('solve-alg').innerHTML=
 `Call bottom-left c
 
-Mid-left  = ${p.bm}+c
-Mid-right = c+${p.br}
+Mid-left  = ${p.bm} + c
+Mid-right = c + ${p.br}
 
 Top = mid-left + mid-right = ${p.top}
 (${p.bm}+c) + (c+${p.br}) = ${p.top}
 ${p.bm+p.br} + 2c = ${p.top}
-2c = ${p.top - p.bm - p.br}
-c  = ${p.c}`;
+2c = ${p.top-p.bm-p.br}
+c  = ${p.c}  ← solve for c first
 
-  container.innerHTML = `
-    <div class="controls">
-      <button class="btn btn-pri" id="new-puzzle">New puzzle</button>
-      ${solveState.checked ? '<button class="btn btn-sm" id="reset-puzzle">Try again</button>' : ''}
-      <span style="font-size:12px;color:var(--text3);font-family:var(--mono);margin-left:auto">Puzzle ${solveState.idx+1}/${puzzles.length}</span>
-    </div>
-
-    <div class="grid-2">
-      <div class="card">
-        <div class="card-lbl">Fill in the missing cells</div>
-        <div class="pyramid-wrap" style="background:transparent;padding:0">
-          <svg viewBox="0 0 ${svgW} ${svgH}" width="100%" style="max-width:340px;margin:0 auto;display:block">${svg}</svg>
-        </div>
-        <div class="section-intro" style="margin-top:14px;margin-bottom:8px">
-          Your answers for the <strong style="color:var(--text)">?</strong> cells:
-        </div>
-        <div class="input-grid">
-          ${[
-            {key:'c',  label:'Bottom-left'},
-            {key:'ml', label:'Mid-left'},
-            {key:'mr', label:'Mid-right'}
-          ].map(f=>{
-            const v = solveState[f.key];
-            const ok = f.key==='c'?cOK:f.key==='ml'?mlOK:mrOK;
-            const wrong = solveState.checked && !ok;
-            const cls = ok?'ok':(wrong?'wrong':'');
-            const ans = f.key==='c'?p.c:f.key==='ml'?p.ml:p.mr;
-            return `<div class="input-cell">
-              <div class="input-cell-lbl">${f.label}</div>
-              <input type="number" data-key="${f.key}" value="${v}" class="${cls}">
-              ${solveState.checked ? `<div class="feedback ${ok?'ok':'wrong'}">${ok?'✓ correct':'ans: '+ans}</div>` : ''}
-            </div>`;
-          }).join('')}
-        </div>
-        ${solveState.checked
-          ? (allOK
-              ? `<div class="result-box success">All three correct — nicely done.</div>`
-              : `<div class="result-box partial">${correctCount}/3 correct — see the answers above</div>`)
-          : `<button class="btn btn-pri" id="check-answers" style="width:100%">Check my answers</button>`
-        }
-      </div>
-
-      <div>
-        <div class="card">
-          <div class="card-lbl">How to solve it — algebra</div>
-          <div class="algebra-box">${algebraText}</div>
-        </div>
-        <div class="insight">
-          Name the unknown <strong>c</strong>. Write the middle cells in terms of c. The top forces one equation — solve for c, then find the rest.
-        </div>
-      </div>
-    </div>
-  `;
-
-  container.querySelector('#new-puzzle').addEventListener('click', ()=>{
-    let nx;
-    do { nx = Math.floor(Math.random()*puzzles.length); } while(nx === solveState.idx && puzzles.length>1);
-    solveState.idx = nx;
-    solveState.c = ''; solveState.ml = ''; solveState.mr = '';
-    solveState.checked = false;
-    renderSolve();
-  });
-  const resetBtn = container.querySelector('#reset-puzzle');
-  if(resetBtn) resetBtn.addEventListener('click', ()=>{
-    solveState.c = ''; solveState.ml = ''; solveState.mr = '';
-    solveState.checked = false;
-    renderSolve();
-  });
-  const checkBtn = container.querySelector('#check-answers');
-  if(checkBtn) checkBtn.addEventListener('click', ()=>{
-    solveState.checked = true;
-    renderSolve();
-  });
-  container.querySelectorAll('input[data-key]').forEach(inp=>{
-    inp.addEventListener('input', e=>{
-      solveState[e.target.dataset.key] = e.target.value;
-      if(solveState.checked){
-        solveState.checked = false;
-        renderSolve();
-      }
-    });
-  });
+Then fill in the rest:
+mid-left = ${p.bm}+${p.c} = ${p.ml}
+mid-right = ${p.c}+${p.br} = ${p.mr}`;
 }
 
-// ============================================================
-// VIEW 3: PATTERN & PASCAL
-// ============================================================
-const patternState = { size: 5, hoverRow: null, hoverCol: null };
-const pascalRows = Array.from({length:8}, (_,r) =>
-  Array.from({length:r+1}, (_,c) => binom(r,c))
-);
+document.getElementById('check-btn').addEventListener('click',()=>{solveState.checked=true;renderSolve();});
+document.getElementById('new-puzzle-btn').addEventListener('click',()=>{
+  let nx;do{nx=rand(0,PUZZLES.length-1);}while(nx===puzzleIdx&&PUZZLES.length>1);
+  puzzleIdx=nx;solveState={c:'',ml:'',mr:'',checked:false};renderSolve();
+});
+
+// ═══ PATTERN / PASCAL ═══
+let patternSize=4;
+const pascalRows=Array.from({length:8},(_,r)=>Array.from({length:r+1},(_,c)=>binom(r,c)));
 
 function renderPattern(){
-  const container = document.getElementById('view-pattern');
-  const size = patternState.size;
-  const weights = Array.from({length:size}, (_,k) => binom(size-1, k));
-  const fibFull = [1,1,2,3,5,8,13,21,34,55];
-  const fibBase = fibFull.slice(0, size);
-  const fibTop = fibBase.reduce((s,v,i) => s + v*weights[i], 0);
-  const fibIsFib = fibFull.includes(fibTop);
-  const weightsSum = weights.reduce((a,b)=>a+b,0);
+  const sz=patternSize;
+  const cellR=18,gX=5,gY=7;
+  const maxRow=7;
+  const pascalW=(maxRow+1)*(cellR*2+gX)+40;
+  const pascalH=8*(cellR*2+gY)+10;
+  const weights=Array.from({length:sz},(_,k)=>binom(sz-1,k));
+  const fib=[1,1,2,3,5,8,13,21,34,55];
+  const fibBase=fib.slice(0,sz);
+  const fibTop=fibBase.reduce((s,v,i)=>s+v*weights[i],0);
+  const isFib=fib.includes(fibTop);
 
-  // Pascal SVG
-  const cellR = 19;
-  const gapX = 6;
-  const gapY = 8;
-  const maxRow = 7;
-  const pascalW = (maxRow+1)*(cellR*2+gapX) + 40;
-  const pascalH = 8*(cellR*2+gapY)+10;
-
-  let pascalSvg = '';
-  pascalRows.forEach((row, ri)=>{
-    const count = row.length;
-    const xStart = (pascalW - count*(cellR*2+gapX) + gapX)/2;
-    const y = ri*(cellR*2+gapY) + cellR + 5;
-    // row label
-    pascalSvg += `<text x="8" y="${y+5}" fill="${ri===size-1?'var(--blue)':'var(--text3)'}" font-size="10" font-family="DM Mono,monospace" font-weight="${ri===size-1?700:500}">r${ri}</text>`;
-    row.forEach((v, ci)=>{
-      const x = xStart + ci*(cellR*2+gapX) + cellR;
-      const isHighlightRow = ri === size-1;
-      const isHover = patternState.hoverRow === ri && patternState.hoverCol === ci;
-      let fill = '#f0ede8', stroke = '#d8d4cc', txt = '#5a5650', sw = 1;
-      if(isHighlightRow){ fill = '#fff'; stroke = '#2c5f9e'; txt = '#2c5f9e'; sw = 1.5; }
-      if(isHover){ fill = '#2c5f9e'; stroke = '#2c5f9e'; txt = '#fff'; sw = 1.5; }
-      const fontSize = v > 99 ? 9 : v > 9 ? 11 : 12;
-      pascalSvg += `<g data-r="${ri}" data-c="${ci}" style="cursor:pointer">
-        <circle cx="${x}" cy="${y}" r="${cellR}" fill="${fill}" stroke="${stroke}" stroke-width="${sw}"/>
-        <text x="${x}" y="${y+4}" text-anchor="middle" fill="${txt}" font-size="${fontSize}" font-family="DM Mono,monospace" font-weight="600">${v}</text>
-      </g>`;
+  let svg='';
+  pascalRows.forEach((row,ri)=>{
+    const cnt=row.length;
+    const xS=(pascalW-cnt*(cellR*2+gX)+gX)/2;
+    const y=ri*(cellR*2+gY)+cellR+5;
+    svg+=`<text x="8" y="${y+4}" fill="${ri===sz-1?'#e8a840':'#716b62'}" font-size="9" font-family="DM Mono,monospace" font-weight="${ri===sz-1?700:500}">r${ri}</text>`;
+    row.forEach((v,ci)=>{
+      const x=xS+ci*(cellR*2+gX)+cellR;
+      const hi=ri===sz-1;
+      let fill=hi?'rgba(232,168,64,.15)':'#201d18';
+      let stroke=hi?'#e8a840':'#2a2520';
+      let txt=hi?'#e8a840':'#716b62';
+      let sw=hi?1.5:1;
+      const fs=v>99?8:v>9?10:11;
+      svg+=`<circle cx="${x}" cy="${y}" r="${cellR}" fill="${fill}" stroke="${stroke}" stroke-width="${sw}"/>`;
+      svg+=`<text x="${x}" y="${y+4}" text-anchor="middle" fill="${txt}" font-size="${fs}" font-family="DM Mono,monospace" font-weight="600">${v}</text>`;
     });
   });
 
-  // Weights line
-  let weightsHTML = '';
-  weights.forEach((w,i)=>{
-    weightsHTML += `<span><span class="w-coef">${w}</span><span class="w-var">·a${i+1}</span></span>`;
-    if(i < weights.length-1) weightsHTML += `<span class="w-plus">+</span>`;
+  document.getElementById('pascal-svg').setAttribute('viewBox',`0 0 ${pascalW} ${pascalH}`);
+  document.getElementById('pascal-svg').setAttribute('width','100%');
+  document.getElementById('pascal-svg').style.maxWidth=pascalW+'px';
+  document.getElementById('pascal-svg').innerHTML=svg;
+  document.getElementById('pascal-legend').textContent=`Row ${sz-1} (highlighted) = weights for pyramid of size ${sz}`;
+
+  // size controls + info
+  let sizeCtrl=`<div style="display:flex;gap:8px;align-items:center;margin-bottom:14px;flex-wrap:wrap">
+    <span style="font-family:var(--mono);font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--chalk3)">Bottom size</span>`;
+  [3,4,5,6,7,8].forEach(n=>{
+    sizeCtrl+=`<button style="width:34px;height:34px;border:1px solid ${n===sz?'#e8a840':'#2a2520'};background:${n===sz?'rgba(232,168,64,.15)':'transparent'};font-family:var(--mono);font-size:13px;font-weight:700;color:${n===sz?'#e8a840':'#716b62'};cursor:pointer" data-ps="${n}">${n}</button>`;
   });
+  sizeCtrl+='</div>';
 
-  container.innerHTML = `
-    <div class="card">
-      <div class="card-lbl">Pascal's triangle — row r${size-1} (highlighted) gives the weights for size ${size}</div>
-      <div class="pyramid-wrap" style="overflow-x:auto">
-        <svg viewBox="0 0 ${pascalW} ${pascalH}" width="100%" style="min-width:300px;max-width:${pascalW}px" id="pascal-svg">${pascalSvg}</svg>
+  const weightStr=weights.map((w,i)=>`${w}·a${i+1}`).join(' + ');
+  const wsum=weights.reduce((a,b)=>a+b,0);
+
+  document.getElementById('pattern-info').innerHTML=sizeCtrl+`
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+      <div style="padding:14px 16px;background:var(--surface2);border:1px solid var(--rule)">
+        <div style="font-family:var(--mono);font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--chalk3);margin-bottom:6px">Formula for top</div>
+        <div style="font-family:var(--mono);font-size:12px;color:var(--chalk2);line-height:1.8">top = ${weightStr}\n\nWeights (row ${sz-1}): ${weights.join(', ')}\nSum = 2^${sz-1} = ${wsum}</div>
       </div>
-      <div class="legend">Each number = sum of the two above it. Row ${size-1} is highlighted — those are the <strong>weights</strong> used below.</div>
-    </div>
-
-    <div class="controls">
-      <span class="controls-label">Pyramid bottom size:</span>
-      ${[3,4,5,6,7,8].map(n=>`<button class="size-btn ${size===n?'active':''}" data-size="${n}">${n}</button>`).join('')}
-    </div>
-
-    <div class="grid-2">
-      <div class="card">
-        <div class="card-lbl">Formula for the top value</div>
-        <div class="section-intro">
-          If the bottom row is <strong>a₁, a₂, …, a${size}</strong>, the top equals:
-        </div>
-        <div class="weights-line">${weightsHTML}</div>
-        <div class="ic-row" style="margin-top:6px">
-          <span class="ic-row-lbl">Weights</span>
-          <span class="ic-row-val">${weights.join(', ')}</span>
-        </div>
-        <div class="ic-row" style="margin-top:8px">
-          <span class="ic-row-lbl">Sum of weights</span>
-          <span class="ic-row-val">2^${size-1} = ${weightsSum}</span>
-        </div>
-        <div class="insight">
-          The weights are <strong>row ${size-1} of Pascal's triangle</strong>. The corners are always 1 (one path up), and the middle weights are largest (most paths).
-        </div>
+      <div style="padding:14px 16px;background:var(--surface2);border:1px solid var(--rule)">
+        <div style="font-family:var(--mono);font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--chalk3);margin-bottom:6px">Fibonacci connection</div>
+        <div style="font-family:var(--mono);font-size:12px;color:var(--chalk2);line-height:1.8">Base: ${fibBase.join(', ')}\n\nTop: ${fibTop} ${isFib?'← <span style="color:#5dbf8a">Fibonacci! ✓</span>':''}\n\nFib input → Fib output\nalways holds!</div>
       </div>
+    </div>`;
 
-      <div class="card">
-        <div class="card-lbl">Fibonacci connection</div>
-        <div class="section-intro">
-          Put the first ${size} Fibonacci numbers in the bottom row:
-        </div>
-        <div class="fib-row">
-          ${fibBase.map(v=>`<div class="fib-cell">${v}</div>`).join('')}
-        </div>
-        <div class="ic-row" style="margin-bottom:8px">
-          <span class="ic-row-lbl">Top value</span>
-          <span class="ic-row-val big">${fibTop}${fibIsFib ? ' <span class="fib-tag">✓ Fibonacci</span>' : ''}</span>
-        </div>
-        <div class="insight">
-          Consecutive Fibonacci numbers in the bottom row always produce <strong>another Fibonacci number</strong> on top. Try different sizes!
-        </div>
-      </div>
-    </div>
-  `;
-
-  // Wire controls
-  container.querySelectorAll('.size-btn').forEach(b=>{
-    b.addEventListener('click', ()=>{
-      patternState.size = parseInt(b.dataset.size);
-      patternState.hoverRow = null;
-      patternState.hoverCol = null;
-      renderPattern();
-    });
-  });
-  const pascalSvgEl = container.querySelector('#pascal-svg');
-  if(pascalSvgEl){
-    pascalSvgEl.querySelectorAll('g[data-r]').forEach(g=>{
-      g.addEventListener('mouseenter', ()=>{
-        patternState.hoverRow = parseInt(g.dataset.r);
-        patternState.hoverCol = parseInt(g.dataset.c);
-        renderPattern();
-      });
-      g.addEventListener('mouseleave', ()=>{
-        patternState.hoverRow = null;
-        patternState.hoverCol = null;
-        renderPattern();
-      });
-    });
-  }
+  document.querySelectorAll('[data-ps]').forEach(b=>b.addEventListener('pointerdown',e=>{
+    e.preventDefault();patternSize=+b.dataset.ps;renderPattern();
+  }));
 }
 
-// ============================================================
-// INIT
-// ============================================================
+// ═══ TABS ═══
+document.querySelectorAll('.tab-btn').forEach(b=>b.addEventListener('click',()=>{
+  document.querySelectorAll('.tab-btn').forEach(x=>x.classList.remove('active'));
+  b.classList.add('active');
+  ['build','solve','pattern'].forEach(id=>{
+    document.getElementById('view-'+id).style.display=b.dataset.t===id?'block':'none';
+  });
+}));
+
 renderBuild();
 renderSolve();
 renderPattern();
